@@ -1,11 +1,22 @@
 from pydantic import BaseModel
+from datetime import datetime
 
+# Request Schema
+class ChatRequest(BaseModel):
+    input: str
 
-class UserCreate(BaseModel):
-    name: str
-    email: str
-    password: str
+# Response Schema
+class ChatResponse(BaseModel):
+    status: str
+    time: str
+    input: str
+    output: str
 
-class UserUpdate(BaseModel):
-    name: str
-    email: str
+def format_response(user_input: str, ai_output: str) -> ChatResponse:
+    """Format response in JSON structure."""
+    return ChatResponse(
+        status="success",
+        time=datetime.utcnow().isoformat() + "Z",
+        input=user_input,
+        output=ai_output
+    )
