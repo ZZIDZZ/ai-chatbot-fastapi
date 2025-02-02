@@ -55,3 +55,5 @@ Once the server is running, you can interact with the chatbot API using:
 - **cURL & Postman** – Make API requests manually.
 - **FastAPI's Auto-generated Docs (`/redoc`)** – View structured documentation.
 
+## License
+This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details.
