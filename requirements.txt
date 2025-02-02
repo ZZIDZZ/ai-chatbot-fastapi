@@ -2,3 +2,8 @@ fastapi
 uvicorn 
 llama-cpp-python 
 pydantic
+pydantic-settings
+python-dotenv
+python-multipart
+chromadb
+pypdf

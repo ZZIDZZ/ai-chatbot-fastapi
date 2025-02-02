@@ -1,12 +1,17 @@
+import os
 from llama_cpp import Llama
+from app.config import settings  # Import settings
 
-# Load GGUF Model
-MODEL_PATH = "DeepSeek-R1-Distill-Qwen-7B-Q4_K_M.gguf"  # Change this to your model path
+# Get model path from settings
+MODEL_PATH = settings.GGUF_MODEL_PATH
+if not os.path.exists(MODEL_PATH):
+    raise FileNotFoundError(f"GGUF model not found at {MODEL_PATH}")
+
 llm = Llama(
     model_path=MODEL_PATH,
     n_gpu_layers=20,
     n_threads=4,
-    n_ctx=2048,
+    n_ctx=50000,
     n_batch=512,
     verbose=True
 )
@@ -88,3 +93,21 @@ def generate_response(user_input: str, knowledge: str = "") -> str:
     prompt = f"{SYSTEM_PROMPT}\n\nContext:\n{knowledge}\n\nUser: {user_input}\nAI:"
     response = llm(prompt, max_tokens=256)
     return response["choices"][0]["text"].strip()
+
+def generate_summary(text: str) -> str:
+    """Generate a summary of the provided text using the LLM with a word limit."""
+    word_limit = 1000  # Max words in summary
+    tokens_per_word = 1.5  # Approximate conversion rate (1.2 - 1.5 tokens per word)
+    max_tokens = int(word_limit * tokens_per_word)  # Set max tokens dynamically
+
+    prompt = f"Summarize the following document in a clear and concise manner in no more than {word_limit} words:\n\n{text}\n\nSummary:"
+
+    response = llm(prompt, max_tokens=max_tokens)
+    summary = response["choices"][0]["text"].strip()
+
+    # Trim the summary to 1000 words if needed
+    words = summary.split()
+    if len(words) > word_limit:
+        summary = " ".join(words[:word_limit]) + "..."
+
+    return summary
