@@ -1,163 +1,57 @@
-# Simple FastAPI Py
+# AI Chatbot FastAPI
 
-## My Awesome FastAPI Project
+This project is a **Chatbot API Engine** built with **FastAPI**, leveraging a **GGUF format Large Language Model (LLM)**.
 
-This is a simple REST API built with Python and FastAPI and SQLAlchemy for CRUD operations (Create, Read, Update, Delete) on users.
-FastAPI is a powerful web framework for building APIs.
+## Features
+
+- 🚀 **FastAPI Framework** – High-performance, asynchronous API.
+- 🤖 **GGUF Format LLM** – Integrates an advanced Large Language Model.
+- 📜 **Auto-generated API Documentation** – Built-in Swagger UI and ReDoc support.
 
 ## Installation
 
-Clone this repository to your local machine:
-```bash
-git clone https://github.com/BaseMax/SimpleFastPyAPI
-```
+1. **Clone the Repository**:
 
-Change into the project directory:
+   ```bash
+   git clone https://github.com/ZZIDZZ/ai-chatbot-fastapi.git
+   cd ai-chatbot-fastapi
+   ```
 
-```bash
-cd SimpleFastPyAPI
-```
+2. **Create and Activate a Virtual Environment**:
 
-Install the project dependencies:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+   ```
 
-```bash
-pip install -r requirements.txt
-```
+3. **Install Dependencies**:
 
-Run the application:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-```bash
-uvicorn main:app --reload
-```
+4. **Configure Environment Variables**:
 
-The application will start and be available at http://localhost:8000.
+   Duplicate the `.env.example` file and rename the copy to `.env`.  
+   Update the variables in the `.env` file as needed.
 
-## API Endpoints
+5. **Run the Application**:
 
-### Retrieve a list of users:
+   ```bash
+   uvicorn main:app --reload
+   ```
 
-```http
-GET /users
-```
+   The API server will be accessible at:
 
-Returns a list of all users in the system:
+   - 🌍 **Base URL:** `http://localhost:8000`
+   - 📄 **Swagger UI:** [`http://localhost:8000/docs`](http://localhost:8000/docs)
+   - 📘 **ReDoc:** [`http://localhost:8000/redoc`](http://localhost:8000/redoc)
 
-```console
-curl http://localhost:8000/users/ -H "Accept: application/json"
-```
-Response:
+## Usage
 
-```json
-[
-    {
-        "email": "alice@example.com",
-        "id": 1,
-        "password": "password1",
-        "name": "Alice"
-    },
-    {
-        "email": "bob@example.com",
-        "id": 2,
-        "password": "password2",
-        "name": "Bob"
-    },
-    {
-        "email": "charlie@example.com",
-        "id": 3,
-        "password": "password3",
-        "name": "Charlie"
-    }
-]
-```
+Once the server is running, you can interact with the chatbot API using:
 
-### Retrieve details for a specific user:
+- **Swagger UI (`/docs`)** – An interactive API testing interface.
+- **cURL & Postman** – Make API requests manually.
+- **FastAPI's Auto-generated Docs (`/redoc`)** – View structured documentation.
 
-```http
-GET /users/{user_id}
-```
-Returns details for a specific user with the given user_id:
-
-```console
-curl http://localhost:8000/users/1 -H "Accept: application/json"
-```
-Response:
-```json
-{
-    "email": "alice@example.com",
-    "id": 1,
-    "password": "password1",
-    "name": "Alice"
-}
-```
-
-### Add a new user
-
-```http
-POST /users
-```
-
-Adds a new user to the system. The request body should include a JSON object with the following properties:
-
-  - `name` (string, required): the name of the user
-  - `email` (string, required): the email address of the user
-  - `password` (string, required): the password for the user
-
-```console
-curl -X POST http://localhost:8000/users/
-   -H 'Content-Type: application/json'
-   -d '{"name":"Ali","password":"123456", "email": "AliAhmadi@gmail.com"}'
-```
-Response:
-
-```json
-{
-    "email": "AliAhmadi@gmail.com",
-    "password": "123456", 
-    "id": 4, 
-    "name": "Ali"
-}
-```
-
-
-### Update an existing user
-```http
-PUT /users/{user_id}
-```
-
-Updates an existing user with the given user_id. The request body should include a JSON object with the following properties:
-
-  -  `name` (string): the new name for the user
-  -  `email` (string): the new email address for the user
-
-```console
-curl -X PUT http://localhost:8000/users/1
-     -H "Accept: application/json"
-     -d '{"name": "Reza", "email": "reza@yahoo.com"}'
-```
-Response:
-```json
-{"message": "User updated successfully"}
-```
-
-### Delete a user
-
-```http
-DELETE /users/{user_id}
-```
-
-Deletes the user with the given user_id:
-
-```console
-curl -X DELETE http://localhost:8000/2
-```
-
-Response:
-```json
-{"message": "User deleted successfully"}
-```
-
-## License
-
-This project is licensed under the GPL-3.0 License - see the LICENSE file for details.
-
-Copyright 2023, Max Base
