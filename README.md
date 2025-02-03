@@ -38,7 +38,7 @@ This project is a **Chatbot API Engine** built with **FastAPI**, leveraging a **
 5. **Run the Application**:
 
    ```bash
-   uvicorn main:app --reload
+   uvicorn app.main:app --reload
    ```
 
    The API server will be accessible at:

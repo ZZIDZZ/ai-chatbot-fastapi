@@ -1,1 +1,3 @@
-{}
+{
+    "ansible.python.interpreterPath": "/Users/macbook/Projects/ai-chatbot-fastapi/.venv/bin/python"
+}
