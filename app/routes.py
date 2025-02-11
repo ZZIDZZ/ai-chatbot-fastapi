@@ -48,12 +48,18 @@ async def summarize_pdf(file: UploadFile = File(...)):
         pdf_reader = PdfReader(io.BytesIO(contents))
 
         # Extract text from each page
-        text = "\n".join([page.extract_text() for page in pdf_reader.pages if page.extract_text()])
+        text = clean_text("\n".join([page.extract_text() for page in pdf_reader.pages if page.extract_text()]))
+        task_id = str(uuid4())
 
         # Generate summary using LLM
-        summary = generate_summary(text)
-
-        return {"filename": file.filename, "summary": summary}
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO summarization_queue (id, text) VALUES (?, ?)", (task_id, text))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        return {"filename": file.filename, "task_id": task_id, "status": "queued"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing PDF: {e}")
