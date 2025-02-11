@@ -11,7 +11,7 @@ llm = Llama(
     model_path=MODEL_PATH,
     n_gpu_layers=20,
     n_threads=4,
-    n_ctx=50000,
+    n_ctx=20000,
     n_batch=512,
     verbose=True
 )
@@ -100,7 +100,7 @@ def generate_summary(text: str) -> str:
     tokens_per_word = 1.5  # Approximate conversion rate (1.2 - 1.5 tokens per word)
     max_tokens = int(word_limit * tokens_per_word)  # Set max tokens dynamically
 
-    prompt = f"Summarize the following document in a clear and concise manner in no more than {word_limit} words:\n\n{text}\n\nSummary:"
+    prompt = f"Summarize the following document in a clear and concise manner in no more than 200 words:\n\n{text}\n\nSummary:"
 
     response = llm(prompt, max_tokens=max_tokens)
     summary = response["choices"][0]["text"].strip()

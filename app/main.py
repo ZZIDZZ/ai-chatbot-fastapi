@@ -6,7 +6,7 @@ from app.routes import router
 
 # Initialize FastAPI
 app = FastAPI(
-    title="CRM Chatbot API", 
+    title="BIMO Chatbot API", 
     version="1.1",
 )
 app.include_router(router)
