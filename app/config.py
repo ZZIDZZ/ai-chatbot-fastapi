@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8000
     DB_PATH: str = "summarization_queue.db"
+    PROMPT_PASSWORD: str = "randompassword123"
 
     class Config:
         env_file = ".env"  # Automatically loads environment variables from .env
