@@ -58,11 +58,11 @@ def submit_summarization(text: str, password: str = Depends(verify_password)):
 def get_summary(task_id: str, password: str = Depends(verify_password)):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT status, result FROM summarization_queue WHERE id = ?", (task_id,))
+    cursor.execute("SELECT status, result, time_elapsed FROM summarization_queue WHERE id = ?", (task_id,))
     row = cursor.fetchone()
     cursor.close()
     conn.close()
 
     if not row:
         raise HTTPException(status_code=404, detail="Task not found")
-    return {"task_id": task_id, "status": row["status"], "result": row["result"]}
+    return {"task_id": task_id, "status": row["status"], "result": row["result"], "time_elapsed": row["time_elapsed"]}

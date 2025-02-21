@@ -33,7 +33,8 @@ def init_db():
             id TEXT PRIMARY KEY,
             text TEXT NOT NULL,
             status TEXT DEFAULT 'pending',
-            result TEXT
+            result TEXT,
+            time_elapsed REAL DEFAULT 0.0
         )
     """)
     conn.commit()
