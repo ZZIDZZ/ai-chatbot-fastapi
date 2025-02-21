@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Summarization</title>
+    <script>
+        let globalPassword = "";
+
+        function setPassword() {
+            globalPassword = document.getElementById('password').value;
+        }
+
+        async function uploadPDF() {
+            const fileInput = document.getElementById('pdfFile');
+            if (!fileInput.files.length) {
+                alert("Please select a PDF file.");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            try {
+                let response = await fetch('/summarize-pdf/?password=' + encodeURIComponent(globalPassword), {
+                    method: 'POST',
+                    body: formData
+                });
+
+                let result = await response.json();
+                document.getElementById('result').innerText = JSON.stringify(result, null, 2);
+
+                if (result.task_id) {
+                    document.getElementById('taskId').value = result.task_id;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function getSummary() {
+            const taskId = document.getElementById('taskId').value;
+            if (!taskId) {
+                alert("Please enter a task ID.");
+                return;
+            }
+
+            try {
+                let response = await fetch(`/summary/${taskId}?password=` + encodeURIComponent(globalPassword), {
+                    method: 'GET'
+                });
+                let result = await response.json();
+
+                if (result.result === null) {
+                    document.getElementById('summaryResult').innerText = "Processing...";
+                } else {
+                    document.getElementById('summaryResult').innerHTML = `<pre>${result.result}</pre>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>PDF Summarization</h1>
+    
+    <h2>Enter API Password</h2>
+    <input type="text" id="password" placeholder="Enter API password" onchange="setPassword()">
+    
+    <h2>Upload PDF</h2>
+    <input type="file" id="pdfFile" accept="application/pdf">
+    <button onclick="uploadPDF()">Upload & Summarize</button>
+    <pre id="result"></pre>
+    
+    <h2>Get Summarization by ID</h2>
+    <input type="text" id="taskId" placeholder="Enter Task ID">
+    <button onclick="getSummary()">Get Summary</button>
+    <pre id="summaryResult"></pre>
+</body>
+</html>

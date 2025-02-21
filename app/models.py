@@ -87,8 +87,13 @@ def queue_worker():
             cursor.execute("UPDATE summarization_queue SET status = 'processing' WHERE id = ?", (task_id,))
             conn.commit()
 
+            # calculate start time
+            start_time = time.time()
+
             summary = generate_summary(text)
-            cursor.execute("UPDATE summarization_queue SET status = 'completed', result = ? WHERE id = ?", (summary, task_id))
+            end_time = time.time()
+            seconds_elapsed = end_time - start_time
+            cursor.execute("UPDATE summarization_queue SET status = 'completed', result = ?, time_elapsed = ? WHERE id = ?", (summary,seconds_elapsed, task_id))
             conn.commit()
 
         cursor.close()
