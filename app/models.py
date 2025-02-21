@@ -62,11 +62,6 @@ def generate_summary(text: str) -> str:
 
     summary = response["choices"][0]["text"].strip()
 
-    # Trim summary if it's too long
-    words = summary.split()
-    if len(words) > word_limit:
-        summary = " ".join(words[:word_limit]) + "..."
-
    # simulate 10 second process using sleep
     # summary = "the summary of this document is I don't give a flick"
     # time.sleep(5)
