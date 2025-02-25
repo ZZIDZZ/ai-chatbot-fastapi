@@ -3,6 +3,7 @@ import re
 import time
 import threading
 from llama_cpp import Llama
+from langdetect import detect, LangDetectException  # New import for language detection
 from app.config import settings, get_db_connection  # Import settings
 
 # Load model path from settings
@@ -22,11 +23,26 @@ llm = Llama(
     verbose=True
 )
 
+def detect_language(text: str) -> str:
+    """
+    Detect the language of the text using langdetect.
+    Fallback to 'en' if detection fails.
+    """
+    try:
+        return detect(text)
+    except LangDetectException:
+        return "en"
+
 # Function to clean input text
 def clean_text(text: str) -> str:
-    """Remove unwanted characters and normalize whitespace in text."""
-    text = re.sub(r'[^\x00-\x7F]+', ' ', text)  # Remove non-ASCII characters
-    text = re.sub(r'\s+', ' ', text).strip()  # Normalize spaces
+    """
+    Remove control characters and normalize whitespace in text.
+    Keeping non-ASCII to allow for multilingual summaries.
+    """
+    # Replace control characters with space
+    text = re.sub(r'[\x00-\x09\x0B\x0C\x0E-\x1F\x7F]+', ' ', text)
+    # Normalize spaces
+    text = re.sub(r'\s+', ' ', text).strip()
     return text
 
 # Function to determine summary word limit using a mathematical formula
@@ -42,28 +58,43 @@ def calculate_word_limit(text: str) -> int:
     word_count = len(text.split())
 
     # Apply piecewise function scaling
-    summary_words = 50 + 30 * min(8, (word_count-1) // 1000)
-
+    summary_words = 50 + 30 * min(8, (word_count - 1) // 1000)
     return summary_words
 
-# Function to generate summary using LLM
 def generate_summary(text: str) -> str:
-    """Generate a concise summary using Llama with dynamic word limits."""
-    word_limit = calculate_word_limit(text)  # Calculate dynamic word limit
+    """Generate a concise summary using Llama with dynamic word limits in the detected language."""
+    # Clean input text
+    text = clean_text(text)
+    
+    # Detect language
+    language = detect_language(text)
+    
+    # Calculate dynamic word limit
+    word_limit = calculate_word_limit(text)
     max_tokens = word_limit * 2  # Adjust token limit
-
-    text = clean_text(text)  # Clean input text
-
-    # Construct prompt
+    
+    # Construct prompt with language guidance
     messages = [
-        {"role": "system", "content": "You are an AI assistant that summarizes documents concisely."},
-        {"role": "user", "content": f"Summarize the following document in no more than {word_limit} words:\n\n{text}"}
+        {
+            "role": "system",
+            "content": (
+                "You are an AI assistant that summarizes documents concisely in the same language "
+                "as the text. Please ensure your summary is in that language."
+            )
+        },
+        {
+            "role": "user",
+            "content": (
+                f"The text is in '{language}'. Summarize the following document in no more than "
+                f"{word_limit} words (in {language}):\n\n{text}"
+            )
+        }
     ]
-
+    
     try:
         # Generate response
         response = llm.create_chat_completion(messages=messages, max_tokens=max_tokens)
-
+        
         # Extract valid response
         if "choices" in response and response["choices"]:
             summary = response["choices"][0]["message"]["content"].strip()
@@ -73,7 +104,6 @@ def generate_summary(text: str) -> str:
     except Exception as e:
         return f"Error during LLM execution: {str(e)}"
 
-# Worker function for processing queue
 def queue_worker():
     """Continuously processes pending summarization requests from the database."""
     while True:
