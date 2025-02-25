@@ -42,7 +42,7 @@ def calculate_word_limit(text: str) -> int:
     word_count = len(text.split())
 
     # Apply piecewise function scaling
-    summary_words = 50 + 50 * min(4, (word_count - 1) // 800)
+    summary_words = 50 + 30 * min(8, (word_count-1) // 1000)
 
     return summary_words
 
