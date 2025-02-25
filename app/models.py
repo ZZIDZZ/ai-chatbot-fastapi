@@ -12,7 +12,7 @@ MODEL_PATH = settings.GGUF_MODEL_PATH
 if not os.path.exists(MODEL_PATH):
     raise FileNotFoundError(f"GGUF model not found at {MODEL_PATH}")
 
-# Initialize Llama model (No Multi-Modal Handler Needed)
+# Initialize Llama model
 llm = Llama(
     model_path=MODEL_PATH,
     n_gpu_layers=0,
@@ -29,11 +29,28 @@ def clean_text(text: str) -> str:
     text = re.sub(r'\s+', ' ', text).strip()  # Normalize spaces
     return text
 
+# Function to determine summary word limit using a mathematical formula
+def calculate_word_limit(text: str) -> int:
+    """
+    Dynamically adjusts summary length based on input text length using a formula.
+    - 1-200 words → 50 words
+    - 201-1000 words → 100 words
+    - 1001-2000 words → 125 words
+    - 2001-4000 words → 150 words
+    - 4001+ words → 200 words
+    """
+    word_count = len(text.split())
+
+    # Apply piecewise function scaling
+    summary_words = 50 + 50 * min(4, (word_count - 1) // 800)
+
+    return summary_words
+
 # Function to generate summary using LLM
 def generate_summary(text: str) -> str:
-    """Generate a concise summary using Llama."""
-    word_limit = 200  # Limit words in summary
-    max_tokens = int(word_limit * 2)  # Adjust tokens for flexibility
+    """Generate a concise summary using Llama with dynamic word limits."""
+    word_limit = calculate_word_limit(text)  # Calculate dynamic word limit
+    max_tokens = word_limit * 2  # Adjust token limit
 
     text = clean_text(text)  # Clean input text
 
@@ -78,7 +95,7 @@ def queue_worker():
             # Start timer
             start_time = time.time()
 
-            # Generate summary
+            # Generate summary with dynamic limits
             summary = generate_summary(text)
 
             # Calculate processing time
@@ -86,8 +103,8 @@ def queue_worker():
 
             # Update task with results
             cursor.execute(
-                "UPDATE summarization_queue SET status = 'completed', result = ?, time_elapsed = ? WHERE id = ?",
-                (summary, time_elapsed, task_id)
+                "UPDATE summarization_queue SET status = 'completed', result = ?, time_elapsed = ?, input_word_count = ? WHERE id = ?",
+                (summary, time_elapsed, len(text.split()), task_id)
             )
             conn.commit()
 
