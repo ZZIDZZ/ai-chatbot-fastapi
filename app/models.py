@@ -95,7 +95,7 @@ def queue_worker():
             # Start timer
             start_time = time.time()
 
-            # Generate summary with dynamic limits
+            # Generate summary
             summary = generate_summary(text)
 
             # Calculate processing time
@@ -103,7 +103,7 @@ def queue_worker():
 
             # Update task with results
             cursor.execute(
-                "UPDATE summarization_queue SET status = 'completed', result = ?, time_elapsed = ?, WHERE id = ?",
+                "UPDATE summarization_queue SET status = 'completed', result = ?, time_elapsed = ? WHERE id = ?",
                 (summary, time_elapsed, task_id)
             )
             conn.commit()
