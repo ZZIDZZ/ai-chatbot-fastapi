@@ -103,8 +103,8 @@ def queue_worker():
 
             # Update task with results
             cursor.execute(
-                "UPDATE summarization_queue SET status = 'completed', result = ?, time_elapsed = ?, input_word_count = ? WHERE id = ?",
-                (summary, time_elapsed, len(text.split()), task_id)
+                "UPDATE summarization_queue SET status = 'completed', result = ?, time_elapsed = ?, WHERE id = ?",
+                (summary, time_elapsed, task_id)
             )
             conn.commit()
 
